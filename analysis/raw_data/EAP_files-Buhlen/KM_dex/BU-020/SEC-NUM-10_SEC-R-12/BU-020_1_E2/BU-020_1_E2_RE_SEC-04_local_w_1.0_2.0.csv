@@ -1,0 +1,11 @@
+section,angel_number,dist to origin on curve [mm],segment on section [mm],angle 1 (3-points) [degree],angle 2 (2-constructed-lines) [degree],angle 3 (2-BestFit-lines) [degree]
+BU-020_1_E2_RE_SEC-04_local,1,1.0,2.0,96.3,100.0,96.9
+BU-020_1_E2_RE_SEC-04_local,2,2.0,2.0,99.2,103.2,103.3
+BU-020_1_E2_RE_SEC-04_local,3,3.0,2.0,100.9,109.8,110.4
+BU-020_1_E2_RE_SEC-04_local,4,4.0,2.0,104.6,115.8,117.4
+BU-020_1_E2_RE_SEC-04_local,5,5.0,2.0,106.9,112.8,113.2
+BU-020_1_E2_RE_SEC-04_local,6,6.0,2.0,107.3,87.7,87.5
+BU-020_1_E2_RE_SEC-04_local,7,7.0,2.0,101.8,69.0,67.3
+BU-020_1_E2_RE_SEC-04_local,8,8.0,2.0,97.9,70.0,73.5
+BU-020_1_E2_RE_SEC-04_local,9,9.0,2.0,94.7,66.4,64.8
+BU-020_1_E2_RE_SEC-04_local,10,10.0,2.0,91.4,69.2,68.7

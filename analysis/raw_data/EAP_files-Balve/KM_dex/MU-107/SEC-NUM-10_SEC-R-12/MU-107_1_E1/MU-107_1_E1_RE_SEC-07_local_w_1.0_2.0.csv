@@ -1,0 +1,12 @@
+section,angel_number,dist to origin on curve [mm],segment on section [mm],angle 1 (3-points) [degree],angle 2 (2-constructed-lines) [degree],angle 3 (2-BestFit-lines) [degree]
+MU-107_1_E1_RE_SEC-07_local,1,1.0,2.0,119.9,101.4,96.2
+MU-107_1_E1_RE_SEC-07_local,2,2.0,2.0,101.2,85.1,84.3
+MU-107_1_E1_RE_SEC-07_local,3,3.0,2.0,95.0,95.5,90.2
+MU-107_1_E1_RE_SEC-07_local,4,4.0,2.0,97.8,96.9,102.9
+MU-107_1_E1_RE_SEC-07_local,5,5.0,2.0,95.2,83.8,83.7
+MU-107_1_E1_RE_SEC-07_local,6,6.0,2.0,92.9,69.5,70.4
+MU-107_1_E1_RE_SEC-07_local,7,7.0,2.0,87.6,58.1,57.2
+MU-107_1_E1_RE_SEC-07_local,8,8.0,2.0,84.0,58.0,56.9
+MU-107_1_E1_RE_SEC-07_local,9,9.0,2.0,80.7,61.0,63.9
+MU-107_1_E1_RE_SEC-07_local,10,10.0,2.0,79.1,61.7,61.1
+MU-107_1_E1_RE_SEC-07_local,11,11.0,2.0,77.1,49.7,50.8

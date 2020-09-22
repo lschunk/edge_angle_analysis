@@ -1,0 +1,158 @@
+---
+title: 'Import - edge angle '
+author: "Lisa Schunk"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    theme: cerulean
+    highlight: pygments
+    number_sections: true
+  github_document: 
+    toc: true
+    toc_depth: 3
+    html_preview: false
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_format = "all", 
+  knit_root_dir = rprojroot::find_rstudio_root_file()) })
+---
+
+
+```{r Knitr Options, include = FALSE}
+knitr::opts_chunk$set(comment = NA, message = FALSE, indent = "", error = TRUE)
+```
+
+
+---
+
+
+# Goal of the script
+This script reads all xlsx file created from the CSV from the GOM Inspect scripts and will sort and extract only specific data   
+The script will:
+
+1. Read in the original xlsx-file  
+2. Add a column with the tool ID 
+
+---
+
+
+```{r}
+dir_in <-  "analysis/raw_data/"
+dir_out <- "analysis/derived_data/"
+```
+
+Raw data must be located in "`r dir_in`".  
+Formatted data will be saved in "`r dir_out`".
+The knit directory for this script is the project directory.
+
+---
+
+
+# Get name, path and information of the file
+```{r}
+data_file <- list.files(dir_in, pattern = "\\.xlsx$", full.names = TRUE)
+md5_in <- md5sum(data_file)
+info_in <- data.frame(files = basename(names(md5_in)), checksum = md5_in, 
+                      row.names = NULL)
+```
+
+The checksum (MD5 hashes) of the imported files are:  
+```{r, echo = FALSE}
+info_in
+```
+
+
+
+# Load packages
+```{r}
+library(openxlsx)
+library(readxl)
+library(R.utils)
+library(tools)
+library(data.table)
+library(chron)
+library(dplyr)
+```
+
+
+# Read in original xlsx-file
+```{r}
+# read xslx file
+Balve_KM <- read.xlsx(xlsxFile = data_file, sheet = 1, startRow = 1, colNames = TRUE,
+                      rowNames = FALSE, skipEmptyRows = FALSE) 
+
+# subset the first 3 numbers from column 'section' (= ID) 
+ID <- substr(Balve_KM$section, 1, 6)
+
+# selects only three columns needed 
+Balve_KM_sel <- Balve_KM[,c(1,3,6)]
+
+# add a column for sampling rate 
+Balve_KM_ID <- cbind(Balve_KM_sel,ID)
+
+# change the order of the rows
+Balve_KM_ID <- Balve_KM_ID[,c(4,1:3)]
+
+# filter the data for dist_intersection "10"
+Balve_KM_10 <- Balve_KM_ID %>%
+  filter(dist_intersection == "10")
+
+
+```
+
+---
+
+
+# Save data
+## Format name of output file
+```{r}
+file_out <- "Balve_KM_10"
+```
+The files will be saved as "`r paste0("~/", file_out, ".[ext]")`".
+
+
+## Write to XLSX
+```{r}
+write.xlsx(list(data = data_final, dimensions = dimensions, KM_dimensions = KM_dimensions,
+                  file = paste0(dir_out, file_out, ".xlsx"))
+```
+
+
+## Save R object
+```{r}
+saveObject(data_final, file = paste0(dir_out, file_out, ".Rbin"))
+```
+
+
+## Show file information
+```{r}
+file_out <- c(paste0(dir_out, file_out, ".xlsx"), paste0(dir_out, file_out, ".Rbin"))
+md5_out <- md5sum(file_out)
+info_out <- data.frame(files = basename(names(md5_out)), checksum = md5_out, 
+                       row.names = NULL)
+```
+
+
+The checksum (MD5 hashes) of the exported files are:  
+```{r, echo = FALSE}
+info_out
+```
+
+
+---
+
+# sessionInfo() and RStudio version
+
+```{r}
+sessionInfo()
+```
+
+RStudio version `r readLines("analysis/Balve/scripts/RStudioVersion.txt", n = 1)`.
+
+
+---
+
+
+END OF SCRIPT
