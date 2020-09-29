@@ -106,8 +106,8 @@ for (s in seq_along(data_final)) {
   data_final[[s]] <- read.csv(CSV_files[s]) %>% 
                      mutate(Site = site, ID = ID, Tool_type = tool_type, Section = sec, Edge = edge) %>% 
                      select(Site, ID, Tool_type, Section, Edge, everything()) %>% 
-                     select(-section) %>% 
-                     rename(Angle_number = angel_number, = dist.to.origin.on.curve..mm., = segment.on.section..mm., = angle.1..3.points...degree., = angle.2..2.constructed.lines...degree., = angle.3..2.BestFit.lines...degree.)
+                     select(-section) %>%
+                     rename(Angle_number = angel_number, Distance_origin = dist.to.origin.on.curve..mm., Segment = segment.on.section..mm.,Three_point = angle.1..3.points...degree., Two_lines = angle.2..2.constructed.lines...degree., Best_fit = angle.3..2.BestFit.lines...degree.)
 }
 
 # rbind all files 
@@ -134,7 +134,7 @@ write.xlsx(list(data = data_final), file = paste0(dir_out, file_out, ".xlsx"))
 
 ## Save R object
 ```{r}
-saveObject(sampl, file = paste0(dir_out, file_out, ".Rbin"))
+saveObject(data_final, file = paste0(dir_out, file_out, ".Rbin"))
 ```
 
 
