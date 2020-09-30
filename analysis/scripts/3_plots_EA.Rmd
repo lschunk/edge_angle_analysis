@@ -73,14 +73,17 @@ info_in
 
 # Load data into R object
 ```{r}
-#imp_data <- loadObject(data_file)
-imp_data <- read.xlsx(xlsxFile = data_file, sheet = 1, startRow = 1, colNames = TRUE,
-                      rowNames = FALSE, skipEmptyRows = FALSE) 
+imp_data <- loadObject(data_file)
 str(imp_data)
 ```
 
 The imported file is: "`r paste0("~/", data_file)`"  
 
+
+# Define numeric variables
+```{r}
+num.var <- 9:length(imp_data)
+```
 
 
 # Plot edge angle measurements 
@@ -90,136 +93,36 @@ The imported file is: "`r paste0("~/", data_file)`"
 # splits the data in the individual 227 samples
 sp <- split(imp_data, imp_data[["ID"]])
 
+for (j in seq_along(sp)) {
+  p <- vector(mode = "list", length = length(num.var))
+  names(p) <- names(sp[[j]])[num.var]
 
-for (i in seq_along(sp)) {
-  
-  p1 <- ggplot(data = imp_data, aes(x = Section, y = Distance_origin, fill = Three_point)) +
-        geom_point() + 
-        labs(x = "Section", y = "Edge angle (degrees)") + ylab(NULL) +
-	      theme_classic()
-}  
-print(p1)
+  for (i in seq_along(num.var)){ 
+    p[[i]] <- ggplot(data = sp[[j]], aes_string(y = "Section", x = names(sp[[j]])[num.var[i]], colour = "Angle_number")) +
+            geom_line(aes(group = Angle_number), orientation = "y") + 
+            geom_hline(yintercept = c(2, 9), linetype = "dashed") +
+            facet_wrap(~ Edge) +
+            scale_colour_continuous(trans = "reverse") +
+            scale_y_continuous(breaks=1:10, trans = "reverse") +
+            labs(y = "Section") + 
+            labs(colour = "Dis. origin (mm)") + 
+            labs(x = gsub("_", " ", names(sp[[j]])[num.var[i]])) + 
+            scale_x_continuous(n.breaks = 3) +
+	          theme_classic() 
+  }
 
+wp <- wrap_plots(p) + plot_annotation(title = names(sp)[j]) + plot_layout(guides = "collect")
 
-     
-
-
-# plots only the first 50 strokes per sample  
-  dat_i_50 <- sp[[i]] %>% 
-              # takes only the first 50 strokes per sample
-              filter(Stroke %in% 1:50)
-  p2 <- ggplot(data = dat_i_50) +
-        geom_line(aes(x = Step, y = Depth, colour = Stroke, group = Stroke), alpha = 0.3) + 
-        labs(x = "Step", y = "Depth (mm)") + 
-        scale_colour_continuous(trans = "reverse") + 
-        coord_cartesian(ylim = range_depth) +
-        scale_x_continuous(breaks=c(1, 4, 7, 10)) +
-	      theme_classic()
-  # patchwork plot
-  p <- p2 + p1 + plot_annotation(title = names(sp)[i]) 
-  print(p)
 
   # save to PDF
-  file_out <- paste0(file_path_sans_ext(info_in[["file"]]), 
-                     "_aVSn_plot_", 
-	                   names(sp)[i], ".pdf")
-  ggsave(filename = file_out, plot = p, path = dir_out, 
-         device = "pdf")
+  file_out <- paste0(file_path_sans_ext(info_in[["file"]]), "_EA_plot_", names(sp)[j], ".pdf")
+  ggsave(filename = file_out, plot = wp, path = dir_out, 
+         device = "pdf", width = 260, height = 170, units = "mm")
 }  
 
 
 ```
-
-
-
-## Plot showing the absolut penetration depths 
-### Plot of all samples 
-```{r}
-# calculates the absolute depths reached per sample
-abs.depth <- function(x) {
-  noNA <- x[!is.na(x)]
-  out <- abs(min(noNA) - max(noNA))
-}
-
-# Define grouping variable and compute the summary statistics 
-depth <- summaryBy(Depth ~ Sample+Raw_material+Contact_material, 
-                  data=imp_data, 
-                  FUN=abs.depth)
-
-str(depth)
-
-# plots all depth points in one facet plot (contact material together)
-p3 <- ggplot(data = depth, aes(x = Contact_material, 
-                               y = Depth.abs.depth, colour = 
-                                 Contact_material)) +
-       geom_point() + labs(y = "Absolute depth (mm)") +
-       scale_colour_hue(h = c(15,225)) +
-       facet_wrap(~Raw_material, strip.position = "bottom") +
-       # avoids overplotting of the labels (sample IDs)
-       geom_text_repel(aes(label=Sample), size = 2, 
-                       nudge_x = -0.4, 
-                       segment.size = 0.1, force = 2, 
-                       seed = 123) +
-       scale_y_continuous(trans = "reverse") +
-       scale_x_discrete(position="top") +
-       # removes the "_" between "Contact_material in the legend 
-       labs(x = "Contact material") + 
-	     theme_classic() +
-       theme(legend.position = "none") 
-      
-print(p3)
-
-# save to PDF
-file_out <- paste0(file_path_sans_ext(info_in[["file"]]), 
-                   "_aVSn_P3_depth_plot_", ".pdf")
-ggsave(filename = file_out, plot = p3, path = dir_out, 
-       device = "pdf", 
-       width = 25, height = 17, units = "cm")
-
-
-# plots all depth points in one facet plot (contact material separated)
-p4 <- ggplot(data = depth, aes(x = Contact_material, 
-                               y = Depth.abs.depth, colour = 
-                                 Raw_material)) +
-       geom_point() + labs(y = "Absolute depth (mm)") +
-       scale_colour_hue(h = c(15,225)) +
-       facet_wrap(~Contact_material, strip.position = "bottom") +
-       # avoids overplotting of the labels (sample IDs)
-       geom_text_repel(aes(label=Sample), size = 2, 
-                       nudge_x = -0.4, 
-                       segment.size = 0.1, force = 2, 
-                       seed = 123) +
-       scale_y_continuous(trans = "reverse") +
-       scale_x_discrete(position="top") +
-       # removes the "_" between "Contact_material in the legend 
-       labs(x = "Contact material") + 
-	     theme_classic() +
-       theme(axis.text.x = element_blank(), axis.ticks = element_blank()) +
-       theme(legend.position = "none") 
-      
-print(p4)
-
-# save to PDF
-file_out <- paste0(file_path_sans_ext(info_in[["file"]]), 
-                   "_aVSn_P4_depth_plot_", ".pdf")
-ggsave(filename = file_out, plot = p4, path = dir_out, 
-       device = "pdf", 
-       width = 25, height = 17, units = "cm")
-
-
-
-```
-
-
 The files will be saved as "`r paste0("~/", dir_out, ".[ext]")`".
-
----
-# Save data
-## Write to XLSX (summary statistics)
-```{r}
-write.xlsx(list(depth = depth, depth_good = depth_good), 
-           file = paste0(dir_out, file_out, ".xlsx"))
-```
 
 
 ---
