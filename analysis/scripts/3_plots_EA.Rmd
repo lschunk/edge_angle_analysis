@@ -122,6 +122,29 @@ wp <- wrap_plots(p) + plot_annotation(title = names(sp)[j]) + plot_layout(guides
 
 
 ```
+
+```{r}
+
+MU3 <-imp_data[18975:19289, ]
+
+ MU <-  ggplot(data = MU3, aes_string(y = "Section", x = "Two_lines"), colour = "Angle_number") +
+            geom_line(aes(group = Angle_number), orientation = "y") + 
+            geom_hline(yintercept = c(2, 9), linetype = "dashed") +
+            facet_wrap(~ Edge) +
+            scale_colour_continuous(trans = "reverse") +
+            scale_y_continuous(breaks=1:10, trans = "reverse") +
+            labs(y = "Section") + 
+            labs(colour = "Dis. origin (mm)") + 
+            labs(x = gsub("_", " ", "Two lines")) + 
+            scale_x_continuous(n.breaks = 7) +
+	          theme_classic() 
+
+print(MU)
+
+```
+
+
+
 The files will be saved as "`r paste0("~/", dir_out, ".[ext]")`".
 
 
