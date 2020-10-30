@@ -136,7 +136,7 @@ MU3 <-imp_data[18975:19289, ]
             labs(y = "Section") + 
             labs(colour = "Dis. origin (mm)") + 
             labs(x = gsub("_", " ", "Two lines")) + 
-            scale_x_continuous(n.breaks = 7) +
+            scale_x_continuous(n.breaks = 9) +
 	          theme_classic() 
 
 print(MU)
