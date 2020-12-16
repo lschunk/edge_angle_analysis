@@ -137,20 +137,66 @@ edge <- summaryBy(. ~ Edge+Section+Distance_origin,
 str(edge)
 ```
 
-
-### Tool type 
+### Tool type + section
 ```{r}
-tool <- summaryBy(. ~ Tool_type+Edge+Section+Distance_origin, 
+tool_sec <- summaryBy(. ~ Tool_type+Edge+Section, 
+                   data = imp_data[c("Tool_type", "Edge", "Section",
+                                   names(imp_data)[num.var])], 
+                   FUN = nminmaxmeanmedsd)
+str(tool_sec)
+```
+
+### Tool type + distance to origin  
+```{r}
+tool_dist <- summaryBy(. ~ Tool_type+Edge+Distance_origin, 
+                   data = imp_data[c("Tool_type", "Edge", "Distance_origin",
+                                   names(imp_data)[num.var])], 
+                   FUN = nminmaxmeanmedsd)
+str(tool_dist)
+```
+
+### Tool type + section + distance to origin 
+```{r}
+tool_sec_dist <- summaryBy(. ~ Tool_type+Edge+Section++Distance_origin, 
                    data = imp_data[c("Tool_type", "Edge", "Section", "Distance_origin",
                                    names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
-str(tool)
+str(tool_sec_dist)
 ```
+
+### Sample 
+```{r}
+ID <- summaryBy(. ~ ID+Tool_type+Edge+Section+Distance_origin, 
+                   data = imp_data[c("ID", "Tool_type", "Edge", "Section", "Distance_origin",
+                                   names(imp_data)[num.var])], 
+                   FUN = nminmaxmeanmedsd)
+str(ID)
+```
+
+### Distance origin 
+```{r}
+dist <- summaryBy(. ~ ID+Tool_type+Edge+Distance_origin, 
+                   data = imp_data[c("ID", "Tool_type", "Edge", "Distance_origin",
+                                   names(imp_data)[num.var])], 
+                   FUN = nminmaxmeanmedsd)
+str(dist)
+```
+
+
+### Section 
+```{r}
+sec <- summaryBy(. ~ ID+Tool_type+Edge+Section, 
+                   data = imp_data[c("ID", "Tool_type", "Edge", "Section",
+                                   names(imp_data)[num.var])], 
+                   FUN = nminmaxmeanmedsd)
+str(sec)
+```
+
 
 ### Site
 ```{r}
-site <- summaryBy(. ~ Site+Tool_type+Edge+Section+Distance_origin, 
-                            data = imp_data[c("Site", "Tool_type", "Edge", "Section", "Distance_origin",
+site <- summaryBy(. ~ Site+ID+Tool_type+Edge+Section+Distance_origin, 
+                            data = imp_data[c("Site", "ID", "Tool_type", "Edge", "Section", "Distance_origin",
                                            names(imp_data)[num.var])],
                           FUN = nminmaxmeanmedsd)
 str(site)
@@ -169,14 +215,14 @@ The file will be saved as "`r paste0("~/", dir_out, ".[ext]")`".
 
 ## Write to XLSX
 ```{r}
-write.xlsx(list(edge = edge, tool = tool, site = site), 
+write.xlsx(list(edge = edge, tool_sec = tool_sec, tool_dist = tool_dist, tool_sec_dist = tool_sec_dist, ID = ID, dist = dist, sec =sec, site = site), 
                 file = paste0(dir_out, file_out, ".xlsx"))
 ```
 
 
 ## Save R object
 ```{r}
-saveObject(list(edge = edge, tool = tool, site = site), 
+saveObject(list(edge = edge, tool_sec = tool_sec, tool_dist = tool_dist, ID = ID, dist = dist, sec =sec, site = site), 
            file = paste0(dir_out, file_out, ".Rbin"))
 ```
 
