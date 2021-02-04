@@ -2,25 +2,12 @@
 title: "Import - Edge angle analysis"
 author: "Lisa Schunk"
 date: "`r Sys.time()`"
-output:
-  html_document:
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    theme: cerulean
-    highlight: pygments
-    number_sections: true
-  github_document: 
-    toc: true
-    toc_depth: 3
-    html_preview: false
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_format = "all", knit_root_dir = rprojroot::find_rstudio_root_file()) })
-
+output: word_document
 ---
 
 ```{r Knitr Options, include = FALSE}
 knitr::opts_chunk$set(comment = NA, message = FALSE, indent = "", error = TRUE)
+
 ```
 
 
@@ -39,6 +26,7 @@ The script will:
 ```{r}
 dir_in <- "analysis/raw_data"
 dir_out <- "analysis/derived_data/"
+
 ```
 
 
@@ -55,6 +43,7 @@ library(tidyverse)
 library(R.utils)
 library(openxlsx)
 library(tools)
+
 ```
 
 
@@ -104,10 +93,16 @@ for (s in seq_along(data_final)) {
     
   # read the data files
   data_final[[s]] <- read.csv(CSV_files[s]) %>% 
-                     mutate(Site = site, ID = ID, Tool_type = tool_type, Section = sec, Edge = edge) %>% 
+                     mutate(Site = site, ID = ID, Tool_type = tool_type, Section = sec, 
+                     Edge = edge) %>% 
                      select(Site, ID, Tool_type, Section, Edge, everything()) %>% 
                      select(-section) %>%
-                     rename(Angle_number = angel_number, Distance_origin = dist.to.origin.on.curve..mm., Segment = segment.on.section..mm.,Three_point = angle.1..3.points...degree., Two_lines = angle.2..2.constructed.lines...degree., Best_fit = angle.3..2.BestFit.lines...degree.)
+                     rename(Angle_number = angel_number, 
+                            Distance_origin = dist.to.origin.on.curve..mm., 
+                            Segment = segment.on.section..mm.,
+                            Three_point = angle.1..3.points...degree., 
+                            Two_lines = angle.2..2.constructed.lines...degree., 
+                            Best_fit = angle.3..2.BestFit.lines...degree.)
 }
 
 # rbind all files 
@@ -123,18 +118,21 @@ row.names(data_final) <- 1:nrow(data_final)
 ## Format name of output file
 ```{r}
 file_out <- "EdgeAngle"
+
 ```
 
 
 ## Write to XLSX
 ```{r}
 write.xlsx(list(data = data_final), file = paste0(dir_out, file_out, ".xlsx")) 
+
 ```
 
 
 ## Save R object
 ```{r}
 saveObject(data_final, file = paste0(dir_out, file_out, ".Rbin"))
+
 ```
 
 
@@ -142,12 +140,15 @@ saveObject(data_final, file = paste0(dir_out, file_out, ".Rbin"))
 ```{r}
 files_out <- list.files(dir_out, full.names = TRUE)
 md5_out <- md5sum(files_out)
-info_out <- data.frame(files = basename(names(md5_out)), checksum = md5_out, row.names = NULL)
+info_out <- data.frame(files = basename(names(md5_out)), checksum = md5_out, 
+                       row.names = NULL)
+
 ```
 
 The checksum (MD5 hashes) of the exported files are:  
 ```{r, echo = FALSE}
 info_out
+
 ```
 
 
@@ -157,6 +158,7 @@ info_out
 
 ```{r}
 sessionInfo()
+
 ```
 
 RStudio version `r readLines("analysis/scripts/RStudioVersion.txt", n = 1)`.

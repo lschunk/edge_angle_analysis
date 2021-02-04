@@ -2,30 +2,18 @@
 title: "Plots - Edge angle analysis"
 author: "Lisa Schunk"
 date: "`r Sys.time()`"
-output:
-  html_document:
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    theme: cerulean
-    highlight: pygments
-    number_sections: true
-  github_document: 
-    toc: true
-    toc_depth: 3
-    html_preview: false
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_format = "all", 
-  knit_root_dir = rprojroot::find_rstudio_root_file()) })
+output: word_document
 ---
 
 ```{r Knitr Options, include=FALSE}
 knitr::opts_chunk$set(comment=NA, message=FALSE, indent="", error=TRUE)
+
 ```
 
 
 # Goal of the script
-This script plots the data from the edge angle analysis (archaeology) in order to visualizes the measurements.  
+This script plots the data from the edge angle analysis (archaeology) in order to visualizes
+the measurements.  
 The plots will also visualize the differences between the three methods. 
 
 
@@ -33,6 +21,7 @@ The plots will also visualize the differences between the three methods.
 ```{r}
 dir_in <- "analysis/derived_data/"
 dir_out <- "analysis/plots"
+
 ```
 
 Raw data must be located in `r paste0("~/", dir_in)`.  
@@ -52,6 +41,7 @@ library(patchwork)
 library(doBy)
 library(ggrepel)
 library(openxlsx)
+
 ```
 
 
@@ -62,12 +52,14 @@ library(openxlsx)
 data_file <- list.files(dir_in, pattern = "\\.Rbin$", full.names = TRUE)
 md5_in <- md5sum(data_file)
 info_in <- data.frame(file = basename(names(md5_in)), checksum = md5_in, row.names = NULL)
+
 ```
 
 
 The checksum (MD5 hashes) of the imported file is:  
 ```{r, echo = FALSE}
 info_in
+
 ```
 
 
@@ -75,6 +67,7 @@ info_in
 ```{r}
 imp_data <- loadObject(data_file)
 str(imp_data)
+
 ```
 
 The imported file is: "`r paste0("~/", data_file)`"  
@@ -83,6 +76,7 @@ The imported file is: "`r paste0("~/", data_file)`"
 # Define numeric variables
 ```{r}
 num.var <- 9:length(imp_data)
+
 ```
 
 
@@ -98,48 +92,31 @@ for (j in seq_along(sp)) {
   names(p) <- names(sp[[j]])[num.var]
 
   for (i in seq_along(num.var)){ 
-    p[[i]] <- ggplot(data = sp[[j]], aes_string(y = "Section", x = names(sp[[j]])[num.var[i]], colour = "Angle_number")) +
-            geom_line(aes(group = Angle_number), orientation = "y") + 
-            geom_hline(yintercept = c(2, 9), linetype = "dashed") +
-            facet_wrap(~ Edge) +
-            scale_colour_continuous(trans = "reverse") +
-            scale_y_continuous(breaks=1:10, trans = "reverse") +
-            labs(y = "Section") + 
-            labs(colour = "Dis. origin (mm)") + 
-            labs(x = gsub("_", " ", names(sp[[j]])[num.var[i]])) + 
-            scale_x_continuous(n.breaks = 3) +
-	          theme_classic() 
+    p[[i]] <- ggplot(data = sp[[j]], aes_string(y = "Section",
+              x = names(sp[[j]])[num.var[i]], colour = "Angle_number")) +
+              geom_line(aes(group = Angle_number), orientation = "y") + 
+              geom_hline(yintercept = c(2, 9), linetype = "dashed") +
+              facet_wrap(~ Edge) +
+              scale_colour_continuous(trans = "reverse") +
+              scale_y_continuous(breaks=1:10, trans = "reverse") +
+              labs(y = "Section") + 
+              labs(colour = "Dis. origin (mm)") + 
+              labs(x = gsub("_", " ", names(sp[[j]])[num.var[i]])) + 
+              scale_x_continuous(n.breaks = 3) +
+	            theme_classic() 
   }
 
-wp <- wrap_plots(p) + plot_annotation(title = names(sp)[j]) + plot_layout(guides = "collect")
+wp <- wrap_plots(p) + plot_annotation(title = names(sp)[j]) + 
+      plot_layout(guides = "collect")
 
+print(wp)
 
   # save to PDF
-  file_out <- paste0(file_path_sans_ext(info_in[["file"]]), "_EA_plot_", names(sp)[j], ".pdf")
+  file_out <- paste0(file_path_sans_ext(info_in[["file"]]), "_EA_plot_", names(sp)[j],
+                     ".pdf")
   ggsave(filename = file_out, plot = wp, path = dir_out, 
          device = "pdf", width = 260, height = 170, units = "mm")
 }  
-
-
-```
-
-```{r}
-
-MU3 <-imp_data[18975:19289, ]
-
- MU <-  ggplot(data = MU3, aes_string(y = "Section", x = "Two_lines"), colour = "Angle_number") +
-            geom_line(aes(group = Angle_number), orientation = "y") + 
-            geom_hline(yintercept = c(2, 9), linetype = "dashed") +
-            facet_wrap(~ Edge) +
-            scale_colour_continuous(trans = "reverse") +
-            scale_y_continuous(breaks=1:10, trans = "reverse") +
-            labs(y = "Section") + 
-            labs(colour = "Dis. origin (mm)") + 
-            labs(x = gsub("_", " ", "Two lines")) + 
-            scale_x_continuous(n.breaks = 9) +
-	          theme_classic() 
-
-print(MU)
 
 ```
 
@@ -150,28 +127,11 @@ The files will be saved as "`r paste0("~/", dir_out, ".[ext]")`".
 
 ---
 
-
-# Show plot files information
-```{r}
-info_out <- list.files(path = dir_out, pattern = "\\.pdf$", 
-                       full.names = TRUE) %>% 
-            md5sum()
-```
-
-
-The checksum (MD5 hashes) of the exported files are:  
-```{r, echo = FALSE}
-info_out
-```
-
-
-
----
-
 # sessionInfo() and RStudio version
 
 ```{r}
 sessionInfo()
+
 ```
 
 RStudio version `r readLines("analysis/scripts/RStudioVersion.txt", n = 1)`.

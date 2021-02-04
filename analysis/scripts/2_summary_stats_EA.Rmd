@@ -1,27 +1,14 @@
 ---
-title: "Summary statistics - Edge angle analysis" 
+title: "Summary statistics - Edge angle analysis"
 author: "Lisa Schunk"
 date: "`r Sys.time()`"
-output:
-  html_document:
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    theme: cerulean
-    highlight: pygments
-    number_sections: true
-  github_document: 
-    toc: true
-    toc_depth: 3
-    html_preview: false
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_format = "all", 
-  knit_root_dir = rprojroot::find_rstudio_root_file()) })
+output: word_document
 ---
 
 
 ```{r Knitr Options, include=FALSE}
 	knitr::opts_chunk$set(comment=NA, message=FALSE, indent="", error=TRUE)
+
 ```
 
 ---
@@ -49,6 +36,7 @@ It computes the following statistics:
 ```{r}
 dir_in <- "analysis/derived_data/"
 dir_out <- "analysis/summary_stats/"
+
 ```
 
 Raw data must be located in `r paste0("~/", dir_in)`.  
@@ -63,6 +51,7 @@ library(openxlsx)
 library(R.utils)
 library(tools)
 library(doBy)
+
 ```
 
 
@@ -74,12 +63,14 @@ data_file <- list.files(dir_in, pattern = "\\.Rbin$", full.names = TRUE)
 md5_in <- md5sum(data_file)
 info_in <- data.frame(file = basename(names(md5_in)), checksum = md5_in, 
                       row.names = NULL)
+
 ```
 
 
 The checksum (MD5 hashes) of the imported files are:  
 ```{r, echo = FALSE}
 info_in
+
 ```
 
 
@@ -87,10 +78,10 @@ info_in
 ```{r}
 imp_data <- loadObject(data_file)
 str(imp_data)
+
 ```
 
 The imported file is: "`r paste0("~/", data_file)`"  
-
 
 
 ---
@@ -99,12 +90,14 @@ The imported file is: "`r paste0("~/", data_file)`"
 # Define numeric variables
 ```{r}
 num.var <- 9:length(imp_data)
+
 ```
 
 The following variables will be used: 
 
 ```{r, echo=FALSE}
 for (i in num.var) cat("[",i,"] ", names(imp_data)[i], "\n", sep = "")
+
 ```
 
 ---
@@ -125,6 +118,7 @@ nminmaxmeanmedsd <- function(x){
  	names(out) <- c("n", "min", "max", "mean", "median", "sd")
  	return(out)
 }
+
 ```
 
 ##  Compute the summary statistics in groups
@@ -135,6 +129,7 @@ edge <- summaryBy(. ~ Edge+Section+Distance_origin,
                                   names(imp_data)[num.var])], 
                   FUN = nminmaxmeanmedsd)
 str(edge)
+
 ```
 
 ### Tool type + section
@@ -144,6 +139,7 @@ tool_sec <- summaryBy(. ~ Tool_type+Edge+Section,
                                    names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
 str(tool_sec)
+
 ```
 
 ### Tool type + distance to origin  
@@ -153,24 +149,27 @@ tool_dist <- summaryBy(. ~ Tool_type+Edge+Distance_origin,
                                    names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
 str(tool_dist)
+
 ```
 
 ### Tool type + section + distance to origin 
 ```{r}
 tool_sec_dist <- summaryBy(. ~ Tool_type+Edge+Section++Distance_origin, 
                    data = imp_data[c("Tool_type", "Edge", "Section", "Distance_origin",
-                                   names(imp_data)[num.var])], 
+                                     names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
 str(tool_sec_dist)
+
 ```
 
 ### Sample 
 ```{r}
 ID <- summaryBy(. ~ ID+Tool_type+Edge+Section+Distance_origin, 
-                   data = imp_data[c("ID", "Tool_type", "Edge", "Section", "Distance_origin",
-                                   names(imp_data)[num.var])], 
+                   data = imp_data[c("ID", "Tool_type", "Edge", "Section",
+                                     "Distance_origin", names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
 str(ID)
+
 ```
 
 ### Distance origin 
@@ -180,6 +179,7 @@ dist <- summaryBy(. ~ ID+Tool_type+Edge+Distance_origin,
                                    names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
 str(dist)
+
 ```
 
 
@@ -190,16 +190,19 @@ sec <- summaryBy(. ~ ID+Tool_type+Edge+Section,
                                    names(imp_data)[num.var])], 
                    FUN = nminmaxmeanmedsd)
 str(sec)
+
 ```
 
 
 ### Site
 ```{r}
 site <- summaryBy(. ~ Site+ID+Tool_type+Edge+Section+Distance_origin, 
-                            data = imp_data[c("Site", "ID", "Tool_type", "Edge", "Section", "Distance_origin",
+                            data = imp_data[c("Site", "ID", "Tool_type", "Edge", "Section",
+                                           "Distance_origin",
                                            names(imp_data)[num.var])],
                           FUN = nminmaxmeanmedsd)
 str(site)
+
 ```
 
 
@@ -209,37 +212,27 @@ str(site)
 ## Format name of output file
 ```{r}
 file_out <- "EdgeAngle_stats"
+
 ```
 The file will be saved as "`r paste0("~/", dir_out, ".[ext]")`".
 
 
 ## Write to XLSX
 ```{r}
-write.xlsx(list(edge = edge, tool_sec = tool_sec, tool_dist = tool_dist, tool_sec_dist = tool_sec_dist, ID = ID, dist = dist, sec =sec, site = site), 
-                file = paste0(dir_out, file_out, ".xlsx"))
+write.xlsx(list(edge = edge, tool_sec = tool_sec, tool_dist = tool_dist, tool_sec_dist =
+                  tool_sec_dist, ID = ID, dist = dist, sec =sec, site = site), 
+                  file = paste0(dir_out, file_out, ".xlsx"))
+
 ```
 
 
 ## Save R object
 ```{r}
-saveObject(list(edge = edge, tool_sec = tool_sec, tool_dist = tool_dist, ID = ID, dist = dist, sec =sec, site = site), 
-           file = paste0(dir_out, file_out, ".Rbin"))
+saveObject(list(edge = edge, tool_sec = tool_sec, tool_dist = tool_dist, ID = ID, dist =
+                  dist, sec =sec, site = site), 
+                  file = paste0(dir_out, file_out, ".Rbin"))
+
 ```
-
-
-## Show files information
-```{r}
-files_out <- c(paste0(dir_out, file_out, ".xlsx"), paste0(dir_out, file_out, ".Rbin"))
-md5_out <- md5sum(files_out)
-info_out <- data.frame(files = basename(names(md5_out)), checksum = md5_out, 
-                       row.names = NULL)
-```
-
-The checksum (MD5 hashes) of the exported files are:  
-```{r, echo = FALSE}
-info_out
-```
-
 
 ---
 
@@ -247,6 +240,7 @@ info_out
 
 ```{r}
 sessionInfo()
+
 ```
 
 RStudio version `r readLines("analysis/scripts/RStudioVersion.txt", n = 1)`.
