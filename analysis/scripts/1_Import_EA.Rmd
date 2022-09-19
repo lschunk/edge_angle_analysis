@@ -113,6 +113,41 @@ row.names(data_final) <- 1:nrow(data_final)
 ```
 
 
+# Exclude the data, which is not relevant for 3D-EdgeAngle
+```{r}
+# Keilmesser
+KM <- filter(data_final, Tool_type == "KM_dex" | Tool_type == "KM_sin")
+KM <- filter(KM, Edge == "E1")
+KM <- filter(KM, Distance_origin == "5") 
+KM <- filter(KM, Section == "2" | Section == "3" | Section == "4" | Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
+
+# keeps only columns relevant for the analysis 
+keep_col <- c(1:4, 7:8, 10)
+KM <- KM[, keep_col]
+
+
+# Keilmesser with lateral sharpening spall
+KM.LSS <- filter(data_final, Tool_type == "KM+LSS_dex" | Tool_type == "KM+LSS_sin")
+KM.LSS <- filter(KM.LSS, Edge == "E1")
+KM.LSS <- filter(KM.LSS, Distance_origin == "5") 
+KM.LSS <- filter(KM.LSS, Section == "2" | Section == "3" | Section == "4" | Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
+
+# keeps only columns relevant for the analysis 
+keep_col <- c(1:4, 7:11)
+KM.LSS <- KM.LSS[, keep_col]
+
+
+```
+
+# Calculates the average edge angle  
+```{r}
+# Keilmesser
+mean <- mean(KM$Two_lines)
+
+
+```
+
+
 
 # Save data
 ## Format name of output file
