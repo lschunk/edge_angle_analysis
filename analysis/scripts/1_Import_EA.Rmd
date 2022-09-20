@@ -118,31 +118,53 @@ row.names(data_final) <- 1:nrow(data_final)
 # Keilmesser
 KM <- filter(data_final, Tool_type == "KM_dex" | Tool_type == "KM_sin")
 KM <- filter(KM, Edge == "E1")
-KM <- filter(KM, Distance_origin == "5") 
-KM <- filter(KM, Section == "2" | Section == "3" | Section == "4" | Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
-
+KM <- filter(KM, Distance_origin == "10") 
 # keeps only columns relevant for the analysis 
 keep_col <- c(1:4, 7:8, 10)
 KM <- KM[, keep_col]
+# separates into sections in the distal and proximal part of the tool 
+KM_dis <- filter(KM, Section == "2" | Section == "3" | Section == "4")
+KM_prox <- filter(KM, Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
 
 
 # Keilmesser with lateral sharpening spall
 KM.LSS <- filter(data_final, Tool_type == "KM+LSS_dex" | Tool_type == "KM+LSS_sin")
 KM.LSS <- filter(KM.LSS, Edge == "E1")
-KM.LSS <- filter(KM.LSS, Distance_origin == "5") 
-KM.LSS <- filter(KM.LSS, Section == "2" | Section == "3" | Section == "4" | Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
+KM.LSS <- filter(KM.LSS, Distance_origin == "10") 
+# keeps only columns relevant for the analysis 
+keep_col <- c(1:4, 7:8, 10)
+KM.LSS <- KM.LSS[, keep_col]
+# separates into sections in the distal and proximal part of the tool 
+KM.LSS_dis <- filter(KM.LSS, Section == "2" | Section == "3" | Section == "4")
+KM.LSS_prox <- filter(KM.LSS, Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
 
+
+# all KM together 
+KM_all <- filter(data_final, Tool_type == "KM_dex" | Tool_type == "KM_sin" | Tool_type == "KM+LSS_dex" | Tool_type == "KM+LSS_sin")
+KM_all <- filter(KM_all, Edge == "E1")
+KM_all <- filter(KM_all, Distance_origin == "10") 
 # keeps only columns relevant for the analysis 
 keep_col <- c(1:4, 7:11)
-KM.LSS <- KM.LSS[, keep_col]
-
+KM_all <- KM_all[, keep_col]
+# separates into sections in the distal and proximal part of the tool 
+KM_all.dist <- filter(KM_all, Section == "2" | Section == "3" | Section == "4")
+KM_all.prox <- filter(KM_all, Section == "5" | Section == "6" | Section == "7" | Section == "8" | Section == "9")
 
 ```
 
 # Calculates the average edge angle  
 ```{r}
 # Keilmesser
-mean <- mean(KM$Two_lines)
+mean_KM <- mean(KM_dis$Two_lines)
+mean_KM <- mean(KM_prox$Two_lines)
+
+# Keilmesser with lateral sharpening spall
+mean.LSS_dis <- mean(KM.LSS_dis$Two_lines)
+mean.LSS_prox <- mean(KM.LSS_prox$Two_lines, na.rm = TRUE)
+
+# all KM together
+mean_all.dis <- mean(KM_all.dist$Two_lines, na.rm = TRUE)
+mean_all.prox <- mean(KM_all.prox$Two_lines, na.rm = TRUE)
 
 
 ```
