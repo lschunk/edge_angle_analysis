@@ -2,7 +2,13 @@
 title: "Plots - Edge angle analysis"
 author: "Lisa Schunk"
 date: "`r Sys.time()`"
-output: word_document
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
 ---
 
 ```{r Knitr Options, include=FALSE}
@@ -30,17 +36,10 @@ The knit directory for this script is the project directory.
 
 ---
 
-
 # Load packages
-```{r}
-library(R.utils)
-library(ggplot2)
-library(tools)
-library(tidyverse)
-library(patchwork)
-library(doBy)
-library(ggrepel)
-library(openxlsx)
+```{r Libraries}
+pack_to_load <- c("R.utils", "tools", "openxlsx", "ggplot2", "tidyverse", "patchwork", "doBy", "ggrepel")
+sapply(pack_to_load, library, character.only = TRUE, logical.return = TRUE)
 
 ```
 
@@ -52,13 +51,6 @@ library(openxlsx)
 data_file <- list.files(dir_in, pattern = "\\.Rbin$", full.names = TRUE)
 md5_in <- md5sum(data_file)
 info_in <- data.frame(file = basename(names(md5_in)), checksum = md5_in, row.names = NULL)
-
-```
-
-
-The checksum (MD5 hashes) of the imported file is:  
-```{r, echo = FALSE}
-info_in
 
 ```
 
@@ -84,7 +76,7 @@ num.var <- 9:length(imp_data)
 ## Plots showing the angles as lines 
 ```{r}
 
-# splits the data in the individual 227 samples
+# split the data in the individual 227 samples
 sp <- split(imp_data, imp_data[["ID"]])
 
 for (j in seq_along(sp)) {
@@ -136,6 +128,12 @@ sessionInfo()
 
 RStudio version `r readLines("analysis/scripts/RStudioVersion.txt", n = 1)`.
 
+
+# Cite R packages used
+```{r Citation}
+for (i in pack_to_load) print(citation(i), bibtex = FALSE)
+
+```
 
 ---
 

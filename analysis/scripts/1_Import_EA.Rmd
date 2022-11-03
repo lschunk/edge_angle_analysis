@@ -2,7 +2,13 @@
 title: "Import - Edge angle analysis"
 author: "Lisa Schunk"
 date: "`r Sys.time()`"
-output: word_document
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
 ---
 
 ```{r Knitr Options, include = FALSE}
@@ -19,7 +25,8 @@ The script will:
 
 1. Read in the original CSV-files   
 2. Combine the data from all samples into one 
-3. Write an XLSX-file and save an R object ready for further analysis in R 
+3. Calculate mean edge angle values 
+4. Write an XLSX-file and save an R object ready for further analysis in R 
 
 
 
@@ -35,17 +42,11 @@ Formatted data will be saved in "`r dir_out`".
 The knit directory for this script is the project directory.
 
 ---
-
-
 # Load packages
-```{r}
-library(tidyverse)
-library(R.utils)
-library(openxlsx)
-library(tools)
-
+```{r Libraries}
+pack_to_load <- c("tidyverse", "R.utils", "openxlsx", "tools")
+sapply(pack_to_load, library, character.only = TRUE, logical.return = TRUE)
 ```
-
 
 ---
 
@@ -58,7 +59,6 @@ CSV_files <- list.files(dir_in, pattern = "\\.csv$", recursive = TRUE, full.name
 ```
 
 
-
 # Merge all files and format the data 
 ```{r}
 # Create a list 
@@ -68,30 +68,30 @@ names(data_final) <- basename(CSV_files)
 # For each sample
 for (s in seq_along(data_final)) {
   
-    # Gets sample ID from path names 
+    # Get sample ID from path names 
     ID <- dirname(dirname(dirname(CSV_files[s]))) %>%
           basename()
 
-    # Gets name of the site from path names 
+    # Get name of the site from path names 
     site <- basename(dirname(dirname(dirname(dirname(dirname(CSV_files[s])))))) %>% 
             gsub("([A-Za-z0-9_]*-)", "", x = .)
     
-    # Gets tool type from path names 
+    # Get tool type from path names 
     tool_type <- dirname(dirname(dirname(dirname(CSV_files[s])))) %>%
           basename() 
     
-    # Gets section from path names
+    # Get section from path names
     sec <- basename(CSV_files[s]) %>%
       gsub("^[A-Za-z0-9_-]*_SEC-", "", x = .) %>% 
       gsub("_.*\\.csv$", "", x = .) %>% 
       as.numeric()
     
-    # Gets edge (E1/E2/E3) from path name
+    # Get edge (E1/E2/E3) from path name
     edge <- basename((dirname(CSV_files[s])))
     edge <- unlist(strsplit(edge, "_"))[3]  
        
     
-  # read the data files
+  # Read the data files
   data_final[[s]] <- read.csv(CSV_files[s]) %>% 
                      mutate(Site = site, ID = ID, Tool_type = tool_type, Section = sec, 
                      Edge = edge) %>% 
@@ -107,13 +107,14 @@ for (s in seq_along(data_final)) {
 
 # rbind all files 
 data_final <- do.call(rbind, data_final)
-# adds indices as row names 
+# Add indices as row names 
 row.names(data_final) <- 1:nrow(data_final)
 
 ```
 
 
-# Exclude the data, which is not relevant for 3D-EdgeAngle
+# Edge angle calculation 
+## Exclude the data, which is not relevant for the calculation 
 ```{r}
 # Keilmesser
 KM <- filter(data_final, Tool_type == "KM_dex" | Tool_type == "KM_sin")
@@ -152,7 +153,8 @@ KM_all.prox <- filter(KM_all, Section == "5" | Section == "6" | Section == "7" |
 
 ```
 
-# Calculates the average edge angle  
+
+# Calculates the mean values  
 ```{r}
 # Keilmesser
 mean_KM <- mean(KM_dis$Two_lines)
@@ -166,9 +168,7 @@ mean.LSS_prox <- mean(KM.LSS_prox$Two_lines, na.rm = TRUE)
 mean_all.dis <- mean(KM_all.dist$Two_lines, na.rm = TRUE)
 mean_all.prox <- mean(KM_all.prox$Two_lines, na.rm = TRUE)
 
-
 ```
-
 
 
 # Save data
@@ -202,13 +202,6 @@ info_out <- data.frame(files = basename(names(md5_out)), checksum = md5_out,
 
 ```
 
-The checksum (MD5 hashes) of the exported files are:  
-```{r, echo = FALSE}
-info_out
-
-```
-
-
 ---
 
 # sessionInfo() and RStudio version
@@ -219,6 +212,14 @@ sessionInfo()
 ```
 
 RStudio version `r readLines("analysis/scripts/RStudioVersion.txt", n = 1)`.
+
+
+---
+
+# Cite R packages used
+```{r Citation}
+for (i in pack_to_load) print(citation(i), bibtex = FALSE)
+```
 
 
 ---
